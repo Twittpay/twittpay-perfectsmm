@@ -83,8 +83,8 @@ if ($method_name == 'twittpay') {
 
 	// ---------------------------------------------------------------- verify
 	$apiKey = trim($extras['api_key']);
-	$apiBaseUrl = rtrim($extras['api_url'], '/');
-	$scheme = parse_url($apiBaseUrl, PHP_URL_SCHEME) ?: 'https';
+	$apiBaseUrl = rtrim((trim((string) $extras['api_url']) !== '' ? $extras['api_url'] : 'https://checkout.twittpay.com'), '/');
+	$scheme = 'https';
 	$host = parse_url($apiBaseUrl, PHP_URL_HOST);
 	$apiUrl = $scheme . "://" . $host . "/api/payment/verify";
 

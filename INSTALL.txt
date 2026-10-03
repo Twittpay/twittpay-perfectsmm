@@ -1,0 +1,96 @@
+================================================================================
+ TWITTPAY - PERFECT SMM PANEL MODULE
+ version 1.1.0
+================================================================================
+
+READ THIS FIRST: the three PHP files in this zip are BLOCKS TO PASTE, not files
+to upload. Each one starts in the middle of an if/elseif chain that already
+exists in your panel. Uploading them on top of your own files will break your
+panel.
+
+
+WHAT GOES WHERE
+---------------
+
+1. payment_methods.sql
+   Run it once in phpMyAdmin on your panel database. It adds the payment method
+   as id 71.
+
+2. admin/controller/ajax_data.php
+   Open your panel's own admin/controller/ajax_data.php, find the chain of
+   "elseif (($action == 'edit_paymentmethod') && ($_POST['id'] == '...'))"
+   blocks, and paste the block from this file in among them.
+
+   This is the admin form: Method name, Visibility, Visible name, Minimum,
+   Maximum, Brand Key, API URL, Exchange Rate. It also prints the API callback
+   address you will need in step 5.
+
+3. app/controller/addfunds.php
+   Two pieces:
+     - the two small "if (isset($_GET[...]))" blocks go near the top of your
+       panel's own app/controller/addfunds.php
+     - the "elseif ($method_id == 71)" block goes into the chain of payment
+       methods further down the same file
+
+4. app/controller/payment.php
+   Paste the "if ($method_name == 'twittpay')" block into your panel's own
+   app/controller/payment.php, alongside the other payment method blocks.
+
+
+THEN CONFIGURE IT
+-----------------
+
+5. In your panel: Admin -> Settings -> Payment methods -> TwittPay -> edit.
+
+     Brand Key         the key from your TwittPay brand
+     API URL         https://yourgateway.com   (domain only, no path)
+     Exchange Rate   how many BDT one unit of your panel currency is worth.
+                     Leave it at 100 if your panel is in USD and 1 USD = 100 BDT.
+                     If your panel is already in BDT, set it to 1.
+
+   The same screen shows the API callback address, which looks like this:
+
+       https://yourpanel.com/payment/twittpay
+
+6. Give that callback address, plus your panel's own domain, to whoever runs the
+   gateway so they can add it to your brand's allowed domains. The gateway
+   refuses a payment whose callback points at a domain it does not know.
+
+
+WHY 1.1.0 EXISTS
+----------------
+
+Version 1.0 could not work at all. It sent the Brand Key under a header named
+"twittpay-API-KEY", and the gateway reads "API-KEY". A key under a name
+nobody reads is the same as no key, so every request was refused, no payment
+page was ever produced, and no balance was ever credited.
+
+The rest of 1.1.0 is about pending payments. When a customer pays but the SMS
+has not arrived yet, the gateway parks the payment and the merchant approves it
+by hand, sometimes hours later. By then the customer's browser is long gone.
+The gateway therefore calls your panel twice:
+
+      first call    PENDING     nothing is credited yet
+      second call   COMPLETED   after the merchant approves - credit the balance
+      or            FAILED      if the merchant rejects it
+
+Version 1.0 treated the first call as a failure, and its "mark as failed" SQL
+had commas where it needed AND, so it could not even do that. Version 1.1.0
+leaves a pending payment exactly as it is and waits for the second call.
+
+Full details are in the comment at the top of each PHP file.
+
+
+CHECKING IT
+-----------
+
+Add funds with TwittPay. You should reach the gateway's payment page. If
+you get an error instead of a payment page, the message on screen is the
+gateway's own - the usual causes are a wrong Brand Key, a wrong API URL, or your
+panel's domain not being on the brand's allowed list.
+
+To test the pending path: pay, then give a transaction id with no SMS behind it,
+then CLOSE THE TAB. Ask the merchant to approve it in the gateway panel. The
+balance should appear in your panel on its own, with no visit from you.
+
+================================================================================

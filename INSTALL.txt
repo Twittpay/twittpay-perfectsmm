@@ -22,7 +22,6 @@ WHAT GOES WHERE
    blocks, and paste the block from this file in among them.
 
    This is the admin form: Method name, Visibility, Visible name, Minimum,
-   Maximum, Brand Key, API URL, Exchange Rate. It also prints the API callback
    address you will need in step 5.
 
 3. app/controller/addfunds.php
@@ -43,7 +42,6 @@ THEN CONFIGURE IT
 5. In your panel: Admin -> Settings -> Payment methods -> TwittPay -> edit.
 
      Brand Key         the key from your TwittPay brand
-     API URL         https://yourgateway.com   (domain only, no path)
      Exchange Rate   how many BDT one unit of your panel currency is worth.
                      Leave it at 100 if your panel is in USD and 1 USD = 100 BDT.
                      If your panel is already in BDT, set it to 1.
@@ -86,7 +84,6 @@ CHECKING IT
 
 Add funds with TwittPay. You should reach the gateway's payment page. If
 you get an error instead of a payment page, the message on screen is the
-gateway's own - the usual causes are a wrong Brand Key, a wrong API URL, or your
 panel's domain not being on the brand's allowed list.
 
 To test the pending path: pay, then give a transaction id with no SMS behind it,

@@ -49,7 +49,7 @@ endif;
 elseif ($method_id == 71) :
 
 	$apiKey = $extra['api_key'];
-	$apiBaseUrl = rtrim((trim((string) $extra['api_url']) !== '' ? $extra['api_url'] : 'https://checkout.twittpay.com'), '/');
+	$apiBaseUrl = 'https://checkout.twittpay.com';
 	$scheme = 'https';
 	$host = parse_url($apiBaseUrl, PHP_URL_HOST);
 	$apiUrl = $scheme . "://" . $host . "/api/payment/create";
